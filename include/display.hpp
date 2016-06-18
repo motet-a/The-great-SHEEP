@@ -4,12 +4,14 @@
 # include <SDL2/SDL.h>
 # include <SDL2/SDL_image.h>
 # include <iostream>
+# include <vector>
 
 # include "camera.hpp"
 
 class Tile;
 class Terrain;
 class Game;
+class Renderable;
 
 namespace display
 {
@@ -39,6 +41,9 @@ public:
   void fixBoard(SDL_Rect&) const;
   void isometrize(SDL_Rect&) const;
   void displayTiles(Terrain *terrain);
+  void displayRenderable(Renderable *renderable);
+  void addRenderable(Renderable *renderable);
+  void removeRenderable(Renderable *renderable);
 
   Vect <2, double> const &getCamera() const;
   Vect <2, double> const getIngameCursor() const;
@@ -46,6 +51,7 @@ public:
 private:
   Game *game;
   SDL_Texture *textures[display::TEXTURE_MAX];
+  std::vector<Renderable *> renderables;
   Camera camera;
 };
 

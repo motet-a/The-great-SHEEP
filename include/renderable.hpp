@@ -12,6 +12,7 @@ public:
 
   Vect<2u, double> *position;
   Vect<2u, double> *dimensions;
+  SDL_Rect *srcRect;
   SDL_Texture *texture;
 };
 

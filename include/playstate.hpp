@@ -8,15 +8,26 @@
 // Forward declaration
 class Display;
 class Terrain;
+class EntityHandler;
+class Logic;
 class Perso;
 
 /*
 ** INHERITED FROM GAMESTATE!! => check gamestate.hpp for more details about
 ** the following functions
-** PlayState : Gamestate for the menu
+** PlayState : Gamestate for the actual game!
 */
 class PlayState: public IGameState
 {
+private:
+  // Main class
+  Game *game;
+  Display *display;
+  Terrain *terrain;
+  EntityHandler *entityHandler;
+  Logic *logic;
+  Perso		*perso;
+
 public:
   // Constructor/Destructor
   PlayState(Game *game);
@@ -29,12 +40,12 @@ public:
   void pause(void);
   void resume(void);
 
-private:
-  // Main class
-  Game		*game;
-  Display	*display;
-  Terrain	*terrain;
-  Perso		*perso;
+
+  // getters
+  Logic *getLogic();
+  Terrain *getTerrain();
+  EntityHandler *getEntityHandler();
+  Display *getDisplay();
 };
 
 #endif /* !PLAYSTATE_HPP_ */

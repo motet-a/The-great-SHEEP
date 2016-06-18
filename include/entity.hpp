@@ -2,17 +2,22 @@
 # define ENTITY_HPP_
 
 # include <vector>
-# include "renderable.hpp"
+
+class Fixture;
+class Renderable;
+class PlayState;
+class Game;
 
 class Entity
 {
+protected:
+  PlayState *playState;
 public:
-  virtual ~Entity(void) {};
-
-  //  virtual std::vector<Fixture> getFixtures(void) = 0; TODO
-  virtual std::vector<Renderable> const & getRenderable(void) const = 0;
+  Entity();
+  Entity(PlayState *playState);
+  virtual ~Entity(void);
   virtual void update(void) = 0;
-  //  virtual void getStats(void) = 0; TODO
+  virtual void render(Game *game) const = 0;
 };
 
 #endif // !ENTITY_HPP_

@@ -5,11 +5,13 @@
 #include "top_header.hpp"
 #include "game.hpp"
 #include "perso.hpp"
+#include "playstate.hpp"
 
 //
 // Constructor/Destructor
 //
-Perso::Perso(Game *game, Display *display) : game(game), display(display), position(display->getCamera())
+Perso::Perso(Game *game, PlayState *playState, Vect<2u, double> startPosition)
+  : Entity(playState), position(startPosition)
 {
 
   // Load perso.png
@@ -23,9 +25,11 @@ Perso::Perso(Game *game, Display *display) : game(game), display(display), posit
     }
 
   // Add renderable
-  this->renderable.push_back(Renderable(new Vect<2, double>(PERSO_WIDTH, PERSO_HEIGHT),
-					new Vect<2, double>(PERSO_WIDTH, PERSO_HEIGHT),
-					textures[perso::DIR_IDLE]));
+  renderable = new Renderable(&position,
+			      new Vect<2, double>(PERSO_WIDTH, PERSO_HEIGHT),
+			      textures[perso::DIR_IDLE]);
+  renderable->srcRect = NULL;
+  playState->getDisplay()->addRenderable(renderable);
 
   // Set booleans
   moving = false;
@@ -51,9 +55,11 @@ Perso::Perso(Game *game, Display *display) : game(game), display(display), posit
 
 Perso::~Perso()
 {
-  delete renderable.back().dimensions;
-  delete renderable.back().position;
   int	i;
+
+  playState->getDisplay()->removeRenderable(renderable);
+  delete renderable->dimensions;
+  delete renderable;
   i = perso::DIR_IDLE;
   while (i < perso::DIR_MAX)
     {
@@ -65,11 +71,6 @@ Perso::~Perso()
 //
 // Getters
 //
-std::vector<Renderable> const &	Perso::getRenderable() const
-{
-  return (renderable);
-}
-
 Vect<2, double>			Perso::getPosition() const
 {
   return (position);
@@ -108,20 +109,18 @@ void		Perso::update()
 
   // Decremente distance & update position
   distance -= PERSO_SPEED;
-  position[0] += speed[0] * PERSO_SPEED;
-  position[1] += speed[1] * PERSO_SPEED;
-  display->moveCamera(speed[0] * PERSO_SPEED, speed[1] * PERSO_SPEED);
+  position = position + speed * PERSO_SPEED;
   if (distance <= 0)
     {
+      *renderable->dimensions = Vect<2, double>(PERSO_WIDTH, PERSO_HEIGHT);
       // Set IDLE sprite
-      delete renderable.back().dimensions;
-      delete renderable.back().position;
-      renderable.clear();
-      this->renderable.push_back(Renderable(new Vect<2, double>(PERSO_WIDTH, PERSO_HEIGHT),
-					    new Vect<2, double>(PERSO_WIDTH, PERSO_HEIGHT),
-					    textures[perso::DIR_IDLE]));
+      renderable->texture = textures[perso::DIR_IDLE];
       moving = false;
     }
+  if (moving)
+    renderable->srcRect = sprites + frame / PERSO_FRAME_SPEED;
+  else
+    renderable->srcRect = NULL;
 }
 
 //
@@ -138,13 +137,7 @@ void		Perso::moveTo(Vect<2, double> dest)
     direction = perso::DIR_LEFT;
 
   // Set sprite accordingly to direction
-  delete renderable.back().dimensions;
-  delete renderable.back().position;
-  renderable.clear();
-  this->renderable.push_back(Renderable(new Vect<2, double>(PERSO_WIDTH, PERSO_HEIGHT),
-					new Vect<2, double>(PERSO_WIDTH, PERSO_HEIGHT),
-					textures[direction]));
-
+  renderable->texture = textures[direction];
   distance = sqrt(pow(destination[0] - position[0], 2) +
   		  pow(destination[1] - position[1], 2));
   if (distance <= 0)
@@ -156,7 +149,7 @@ void		Perso::moveTo(Vect<2, double> dest)
 			  (destination[1] - position[1]) / distance);
 }
 
-void		Perso::renderPerso()
+void		Perso::render(Game *game) const
 {
   SDL_Rect	rect;
 
@@ -165,7 +158,7 @@ void		Perso::renderPerso()
   rect.x = game->getWindowWidth() / 2 - rect.w / 2;
   rect.y = game->getWindowHeight() / 2 - rect.h;
   if (!moving)
-    SDL_RenderCopy(game->getRenderer(), getRenderable()[0].texture, NULL, &rect);
+    SDL_RenderCopy(game->getRenderer(), renderable->texture, NULL, &rect);
   else
-    SDL_RenderCopy(game->getRenderer(), getRenderable()[0].texture, &sprites[frame / PERSO_FRAME_SPEED], &rect);
+    SDL_RenderCopy(game->getRenderer(), renderable->texture, &sprites[frame / PERSO_FRAME_SPEED], &rect);
 }

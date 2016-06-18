@@ -1,7 +1,10 @@
 #ifndef PERSO_HPP_
 # define PERSO_HPP_
 
+# include <SDL2/SDL.h>
 # include "entity.hpp"
+# include "vect.hpp"
+# include "renderable.hpp"
 
 // Perso movement speed
 # define PERSO_SPEED 0.04
@@ -13,8 +16,8 @@
 # define PERSO_NB_FRAME 9
 
 // Perso dimensions
-# define PERSO_WIDTH 60
-# define PERSO_HEIGHT 100
+# define PERSO_WIDTH 1
+# define PERSO_HEIGHT 2
 
 // Forward declaration
 class Game;
@@ -35,37 +38,10 @@ namespace perso
     };
 }
 
-class Perso: public Entity
+class Perso : public Entity
 {
-public:
-  // Constructor/Destructor
-  Perso(Game *game, Display *display);
-  ~Perso();
-
-  std::vector<Renderable>const&	getRenderable() const;
-  Vect<2u, double>		getPosition() const;
-  //  void			getStats(); TODO
-  //  std::vector<Fixture>	getFixtures(); TODO
-
-  // Update perso
-  void				update();
-
-  // Move to given position
-  void				moveTo(Vect<2u, double> dest);
-  void				renderPerso();
-
-  // Get bool
-  bool				isMoving() const;
-  bool				isSelected() const;
-
-  // Set bool
-  void				select();
-
 private:
-  Game				*game;
-  Display			*display;
-
-  std::vector<Renderable>	renderable;
+  Renderable			*renderable;
 
   // Perso movement
   Vect<2, double>		position;
@@ -81,6 +57,31 @@ private:
 
   bool				moving;
   bool				selected;
+
+public:
+  // Constructor/Destructor
+  Perso(Game *game, PlayState *playState, Vect<2u, double> startPosition);
+  ~Perso();
+
+  Vect<2u, double>		getPosition() const;
+  //  void			getStats(); TODO
+  //  std::vector<Fixture>	getFixtures(); TODO
+
+  // Update perso
+  void				update();
+
+  // Move to given position
+  void				moveTo(Vect<2u, double> dest);
+
+  // render
+  virtual void			render(Game *game) const;
+
+  // Get bool
+  bool				isMoving() const;
+  bool				isSelected() const;
+
+  // Set bool
+  void				select();
 };
 
 #endif /* !PERSO_HPP_ */

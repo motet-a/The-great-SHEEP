@@ -1,6 +1,8 @@
 #include "top_header.hpp"
 #include "game.hpp"
 #include "playstate.hpp"
+#include "logic.hpp"
+#include "entity_handler.hpp"
 #include "perso.hpp"
 
 //
@@ -11,14 +13,19 @@ PlayState::PlayState(Game *game) : game(game)
 {
   display = new Display(game);
   terrain = new Terrain();
-  perso = new Perso(game, display);
+  logic = new Logic();
+  perso = new Perso(game, this, Vect<2, double>(0, 0));
+  entityHandler = new EntityHandler(this);
 }
 
 PlayState::~PlayState()
 {
+  delete perso;
+  // entities shold all be deleted at this point
   delete terrain;
   delete display;
-  delete perso;
+  delete logic;
+  delete entityHandler;
 }
 
 //
@@ -74,12 +81,13 @@ void PlayState::update(void)
 
   // Display perso
   perso->update();
-  perso->renderPerso();
+  //  perso->render(game);
 }
 
 void PlayState::draw(void)
 {
-  SDL_RenderPresent(game->getRenderer());
+  display->render();
+  //  SDL_RenderPresent(game->getRenderer());
 }
 
 void PlayState::pause(void)
@@ -90,4 +98,24 @@ void PlayState::pause(void)
 void PlayState::resume(void)
 {
   // Do nothing
+}
+
+Logic *PlayState::getLogic()
+{
+  return (logic);
+}
+
+Terrain *PlayState::getTerrain()
+{
+  return (terrain);
+}
+
+EntityHandler *PlayState::getEntityHandler()
+{
+  return (entityHandler);
+}
+
+Display *PlayState::getDisplay()
+{
+  return (display);
 }
